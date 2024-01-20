@@ -1,0 +1,54 @@
+\documentclass[11pt]{article}
+\date{\today}
+\title{ECS}
+\begin{document}
+
+\maketitle
+\tableofcontents
+
+\section{Head Movement Node}
+
+Main module implements a ROS node. Subscribed topics include face_tracker's face_topic and face_location_topic. When subscribed topic produces a message, a new message to the internal message queue.
+
+Timer is used to trigger internal message queue processing, controlled by HDMV_MAIN_LOOP_TICK_RATE. One message is consumed by tick.
+
+\subsection{head submodule}
+controls head movement
+
+\subsection{eye submodule}
+controls eye movement
+
+\subsection{jaw submodule}
+controls jaw movement
+
+\subsection{file partition}
+
+\begin{table}[htbp]
+  \centering
+  \begin{tabular}{|c|c|}
+    \hline
+    File 1 & Desctiption \\
+    \hline
+    hdmv_cfg.py & global parameters to alter logging, tick-rate, etc.\\
+    \hline
+    hdmv_eye.py & eye submodule \\
+    \hline
+    hdmv_head.py & head submodule \\
+    \hline
+    hdmv_jaw.py & jaw submodule \\
+    \hline
+    hdmv_joints.py & defined used joint ids, joint default values, etc. \\
+    \hline
+    hdmv_log.py & logging utility \\
+    \hline
+    hdmv_msg.py & internal state machine input message ids and structure \\
+    \hline
+    head_movement_node.py & ROS Node implementation \\
+    \hline
+
+  \end{tabular}
+  \caption{A Simple Table}
+  \label{tab:simple}
+\end{table}
+
+\end{document}
