@@ -21,7 +21,7 @@ from head_movement.hdmv_jaw import *
 # import utils
 from head_movement.hdmv_log import *
 from head_movement.hdmv_cfg import *
-
+from head_movement.hdmv_joints import *
 
 class HeadMovementNode(Node):
     def __init__(self):
@@ -106,6 +106,13 @@ class HeadMovementNode(Node):
         Get the current state of head joints. Updated at 20 Hz (see robot.yaml)
         """
         self.logger.log_trace("on update: /head_controller/state");
+        for i, val in enumerate(msg.actual.positions):
+            if math.isnan(val):
+                self.head_ctx.state[i] = joint_id_to_defval(self.head_ctx.joint_ids[i])
+                self.logger.log_warning(f"head joint_id {self.head_ctx.joint_ids[i]} is not responding")
+            else:
+                self.head_state[i] = val
+
 
     def eyes_state_callback(self, msg):
         """

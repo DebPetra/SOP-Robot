@@ -1,6 +1,6 @@
 \documentclass[11pt]{article}
 \date{\today}
-\title{ECS}
+\title{Head Movement Node}
 \begin{document}
 
 \maketitle
@@ -8,7 +8,7 @@
 
 \section{Head Movement Node}
 
-Main module implements a ROS node. Subscribed topics include face_tracker's face_topic and face_location_topic. When subscribed topic produces a message, a new message to the internal message queue.
+Head Movement Node implements a ROS node. Subscribed topics include face_tracker's face_topic and face_location_topic. When subscribed topic produces a message, a new message to the internal message queue.
 
 Timer is used to trigger internal message queue processing, controlled by HDMV_MAIN_LOOP_TICK_RATE. One message is consumed by tick.
 

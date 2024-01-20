@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from typing import Type, List
 from head_movement.hdmv_log import *
 from head_movement.hdmv_msg import *
+from head_movement.hdmv_joints import *
 
 # head sm states
 HDMV_HEAD_STATE_NONE   = 0
@@ -9,9 +10,20 @@ HDMV_HEAD_STATE_MOVING = 1
 
 @dataclass
 class hdmv_head_context:
-    # constructor
     logger: Type[hdmv_logger]
     msg_queue: List[hdmv_msg]
+
+    joint_ids = [\
+        joint_id_head_pan_joint,\
+        joint_id_head_tilt_right_joint,\
+        joint_id_head_tilt_left_joint,\
+        joint_id_head_tilt_vertical_joint]
+
+    state = [\
+        joint_defval_head_pan_joint, \
+        joint_defval_head_tilt_right_joint, \
+        joint_defval_head_tilt_left_joint, \
+        joint_defval_head_tilt_vertical_joint]
 
     current_state = HDMV_HEAD_STATE_NONE
 
