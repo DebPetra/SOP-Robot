@@ -25,7 +25,7 @@ joint_id_to_name = {
     joint_id_head_tilt_vertical_joint   : "joint_id_head_tilt_vertical_joint",   \
     joint_id_eye_shift_horizontal_joint : "joint_id_eye_shift_horizontal_joint", \
     joint_id_eye_shift_vertical_joint   : "joint_id_eye_shift_vertical_joint",   \
-    joint_id_jaw_joint                  =  "joint_id_jaw_joint" \
+    joint_id_jaw_joint                  :  "joint_id_jaw_joint" \
     }
 
 joint_id_to_defval = {
@@ -35,5 +35,5 @@ joint_id_to_defval = {
     joint_id_head_tilt_vertical_joint   : joint_defval_head_tilt_vertical_joint,   \
     joint_id_eye_shift_horizontal_joint : joint_defval_eye_shift_horizontal_joint, \
     joint_id_eye_shift_vertical_joint   : joint_defval_eye_shift_vertical_joint,   \
-    joint_id_jaw_joint                  = joint_defval_jaw_joint \
+    joint_id_jaw_joint                  : joint_defval_jaw_joint \
     }

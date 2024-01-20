@@ -15,7 +15,9 @@ HDMV_MSG_ID_HEAD_LAST_ID         = 199
 
 @dataclass
 class hdmv_msg_head_move_set_target:
-    pass
+    pan: int
+    v_tilt: int
+    h_tilt: int
 
 ########################################
 # eye messages
@@ -27,7 +29,8 @@ HDMV_MSG_ID_EYE_LAST_ID         = 299
 
 @dataclass
 class hdmv_msg_eye_move_set_target:
-    pass
+    x: int
+    y: int
 
 ########################################
 # jaw messages

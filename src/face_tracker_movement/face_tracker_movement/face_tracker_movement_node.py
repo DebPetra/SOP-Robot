@@ -126,7 +126,7 @@ class FaceTrackerMovementNode(Node):
         if self.eyes_enabled:
             #self.get_logger().info('x: %d, y: %d' % (msg.x, msg.y))
             glance_percentage = 0.005 # Chance of executing a glance on each frame where a face has been detected. TODO: Decide on a good value
-            randomvalue = random.uniform(0, 1)  
+            randomvalue = random.uniform(0, 1)
 
             # Check if doing the glance or not
             if randomvalue <= glance_percentage:
