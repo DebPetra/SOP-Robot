@@ -24,10 +24,16 @@ from head_movement.hdmv_cfg import *
 from head_movement.hdmv_joints import *
 
 class HeadMovementNode(Node):
-    def __init__(self):
+    def __init__(self, enable_logging=True):
         super().__init__("head_movement_client")
 
         self.logger = hdmv_logger(self.get_logger())
+
+        if not enable_logging:
+            self.logger.ENABLE_TRACE   = False
+            self.logger.ENABLE_VERBOSE = False
+            self.logger.ENABLE_WARNING = False
+            self.logger.ENABLE_FATAL   = False
 
         # Action clients
         eye_action_client = \
@@ -165,9 +171,9 @@ class HeadMovementNode(Node):
         for i, val in enumerate(msg.actual.positions):
             if math.isnan(val):
                 self.head_ctx.state[i] = joint_id_to_defval[self.head_ctx.joint_ids[i]]
-                # self.logger.log_warning(f"head joint_id {self.head_ctx.joint_ids[i]} is not responding")
+                self.logger.log_warning(f"head joint_id {self.head_ctx.joint_ids[i]} is not responding")
             else:
-                self.head_state[i] = val
+                self.head_ctx.state[i] = val
 
 
     def eyes_state_callback(self, msg):
@@ -179,9 +185,9 @@ class HeadMovementNode(Node):
         for i, val in enumerate(msg.actual.positions):
             if math.isnan(val):
                 self.eye_ctx.state[i] = joint_id_to_defval[self.eye_ctx.joint_ids[i]]
-                # self.logger.log_warning(f"eye joint_id {self.eye_ctx.joint_ids[i]} is not responding")
+                self.logger.log_warning(f"eye joint_id {self.eye_ctx.joint_ids[i]} is not responding")
             else:
-                self.head_state[i] = val
+                self.eye_ctx.state[i] = val
 
     def head_gesture_callback(self, msg):
         """
@@ -229,8 +235,6 @@ class HeadMovementNode(Node):
 # end of class FaceTrackerMovementNode(Node):
 
 def main():
-    print("head_movement/head_movement_nod:main()");
-
     rclpy.init()
 
     action_client = HeadMovementNode()
