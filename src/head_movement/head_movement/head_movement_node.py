@@ -27,25 +27,43 @@ class HeadMovementNode(Node):
     def __init__(self):
         super().__init__("head_movement_client")
 
+        self.logger = hdmv_logger(self.get_logger())
+
         # Action clients
         eye_action_client = \
             ActionClient(self, \
                          FollowJointTrajectory, \
                          "/eyes_controller/follow_joint_trajectory")
 
+        self.logger.log_trace("initalize eye_action_client...");
+
+        initialized = eye_action_client.wait_for_server(HDMV_TIMEOUT_TIME_SEC)
+
+        if initialized:
+            self.logger.log_trace("> initialization done")
+        else:
+            self.logger.log_fatal("> service not available")
+            exit(1)
+
         head_action_client = \
             ActionClient(self, \
                          FollowJointTrajectory, \
                          "/head_controller/follow_joint_trajectory")
 
-        self.logger = hdmv_logger(self.get_logger())
+        self.logger.log_trace("initalize head_action_client...");
+        initialized = head_action_client.wait_for_server(HDMV_TIMEOUT_TIME_SEC)
+
+        if initialized:
+            self.logger.log_trace("> initialization done")
+        else:
+            self.logger.log_fatal("> service not available")
+            exit(1)
+
         self.msg_queue = []
 
         self.head_ctx = hdmv_head_context(self.logger, head_action_client, self.msg_queue);
         self.eye_ctx  = hdmv_eye_context(self.logger, eye_action_client, self.msg_queue);
         self.jaw_ctx  = hdmv_jaw_context(self.logger, self.msg_queue);
-
-        self.msg_queue.append(hdmv_msg(HDMV_MSG_ID_HEAD_MOVE_SET_TARGET, None))
 
         # ROS2 subscriptions
         self.sub_face_pos = \
@@ -144,11 +162,10 @@ class HeadMovementNode(Node):
         msg: JointTrajectoryControllerState
         Get the current state of head joints. Updated at 20 Hz (see robot.yaml)
         """
-        self.logger.log_trace("on update: /head_controller/state");
         for i, val in enumerate(msg.actual.positions):
             if math.isnan(val):
-                self.head_ctx.state[i] = joint_id_to_defval(self.head_ctx.joint_ids[i])
-                self.logger.log_warning(f"head joint_id {self.head_ctx.joint_ids[i]} is not responding")
+                self.head_ctx.state[i] = joint_id_to_defval[self.head_ctx.joint_ids[i]]
+                # self.logger.log_warning(f"head joint_id {self.head_ctx.joint_ids[i]} is not responding")
             else:
                 self.head_state[i] = val
 
@@ -159,11 +176,10 @@ class HeadMovementNode(Node):
         msg: JointTrajectoryControllerState
         Get the current state of eye joints. Updated at 20 Hz (see robot.yaml)
         """
-        self.logger.log_trace("on update: /eyes_controller/state")
         for i, val in enumerate(msg.actual.positions):
             if math.isnan(val):
-                self.eye_ctx.state[i] = joint_id_to_defval(self.eye_ctx.joint_ids[i])
-                self.logger.log_warning(f"eye joint_id {self.eye_ctx.joint_ids[i]} is not responding")
+                self.eye_ctx.state[i] = joint_id_to_defval[self.eye_ctx.joint_ids[i]]
+                # self.logger.log_warning(f"eye joint_id {self.eye_ctx.joint_ids[i]} is not responding")
             else:
                 self.head_state[i] = val
 
@@ -179,35 +195,36 @@ class HeadMovementNode(Node):
         callback for timer
         executes main loop
         """
-        self.logger.log_trace("main loop tick");
-
         msg_count = len(self.msg_queue);
         i = 0
 
-        while i < msg_count:
-            msg = self.msg_queue[i]
-            processed = True
+        try:
+            while i < msg_count:
+                msg = self.msg_queue[i]
+                processed = True
 
-            self.logger.log_verbose(f"processing [{i}] msg {msg}")
+                self.logger.log_verbose(f"processing [{i}] msg {msg}")
 
-            if msg.msg_id >= HDMV_MSG_ID_HEAD_FIRST_ID and \
-               msg.msg_id <= HDMV_MSG_ID_HEAD_LAST_ID:
+                if msg.msg_id >= HDMV_MSG_ID_HEAD_FIRST_ID and \
+                   msg.msg_id <= HDMV_MSG_ID_HEAD_LAST_ID:
 
-                processed = hdmv_head_process_msg(self.head_ctx, msg);
+                    processed = hdmv_head_process_msg(self.head_ctx, msg);
 
-            elif msg.msg_id >= HDMV_MSG_ID_EYE_FIRST_ID and \
-                 msg.msg_id <= HDMV_MSG_ID_EYE_LAST_ID:
+                elif msg.msg_id >= HDMV_MSG_ID_EYE_FIRST_ID and \
+                     msg.msg_id <= HDMV_MSG_ID_EYE_LAST_ID:
 
-                processed = hdmv_eye_process_msg(self.eye_ctx, msg);
+                    processed = hdmv_eye_process_msg(self.eye_ctx, msg);
 
-            elif msg.msg_id >= HDMV_MSG_ID_JAW_FIRST_ID and \
-                 msg.msg_id <= HDMV_MSG_ID_JAW_LAST_ID:
+                elif msg.msg_id >= HDMV_MSG_ID_JAW_FIRST_ID and \
+                     msg.msg_id <= HDMV_MSG_ID_JAW_LAST_ID:
 
-                processed = hdmv_jaw_process_msg(self.jaw_ctx, msg);
+                    processed = hdmv_jaw_process_msg(self.jaw_ctx, msg);
 
-            if processed:
-                self.msg_queue.pop(i)
-                break
+                if processed:
+                    self.msg_queue.pop(i)
+                    break
+        except Exception as e:
+            self.loger.log_warning("exception occurred: \n" + e)
 
 # end of class FaceTrackerMovementNode(Node):
 
@@ -225,8 +242,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-
-
-
-

@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from typing import Type, List
 from head_movement.hdmv_log import *
 from head_movement.hdmv_msg import *
+from head_movement.hdmv_joints import *
 
 from rclpy.action import ActionClient
 from control_msgs.action import FollowJointTrajectory
@@ -17,6 +18,12 @@ class hdmv_eye_context:
     logger: Type[hdmv_logger]
     client: ActionClient
     msg_queue: List[hdmv_msg]
+    joint_ids = [\
+                 joint_id_eye_shift_horizontal_joint,\
+                 joint_id_eye_shift_vertical_joint]
+    state = [\
+             joint_defval_eye_shift_horizontal_joint,\
+             joint_defval_eye_shift_vertical_joint]
 
     current_state = HDMV_EYE_STATE_NONE
 

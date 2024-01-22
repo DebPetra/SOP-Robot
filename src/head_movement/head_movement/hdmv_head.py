@@ -59,9 +59,7 @@ def hdmv_head_process_msg(ctx, msg) -> bool:
     return result
 
 def hdmv_head_handle_msg_head_move_set_target(ctx, msg):
-    ctx.client.wait_for_server()
     hdmv_head_set_state(ctx, HDMV_HEAD_STATE_MOVING)
-
     goal = FollowJointTrajectory.Goal()
 
     trajectory_points = \
