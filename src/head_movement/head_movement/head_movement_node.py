@@ -36,14 +36,13 @@ class HeadMovementNode(Node):
             self.logger.ENABLE_FATAL   = False
 
         # Action clients
-        eye_action_client = \
+        self.eye_action_client = \
             ActionClient(self, \
                          FollowJointTrajectory, \
                          "/eyes_controller/follow_joint_trajectory")
 
         self.logger.log_trace("initalize eye_action_client...");
-
-        initialized = eye_action_client.wait_for_server(HDMV_TIMEOUT_TIME_SEC)
+        initialized = self.eye_action_client.wait_for_server(HDMV_TIMEOUT_TIME_SEC)
 
         if initialized:
             self.logger.log_trace("> initialization done")
@@ -51,13 +50,13 @@ class HeadMovementNode(Node):
             self.logger.log_fatal("> service not available")
             exit(1)
 
-        head_action_client = \
+        self.head_action_client = \
             ActionClient(self, \
                          FollowJointTrajectory, \
                          "/head_controller/follow_joint_trajectory")
 
         self.logger.log_trace("initalize head_action_client...");
-        initialized = head_action_client.wait_for_server(HDMV_TIMEOUT_TIME_SEC)
+        initialized = self.head_action_client.wait_for_server(HDMV_TIMEOUT_TIME_SEC)
 
         if initialized:
             self.logger.log_trace("> initialization done")
@@ -67,8 +66,8 @@ class HeadMovementNode(Node):
 
         self.msg_queue = []
 
-        self.head_ctx = hdmv_head_context(self.logger, head_action_client, self.msg_queue);
-        self.eye_ctx  = hdmv_eye_context(self.logger, eye_action_client, self.msg_queue);
+        self.head_ctx = hdmv_head_context(self.logger, self.head_action_client, self.msg_queue);
+        self.eye_ctx  = hdmv_eye_context(self.logger, self.eye_action_client, self.msg_queue);
         self.jaw_ctx  = hdmv_jaw_context(self.logger, self.msg_queue);
 
         # ROS2 subscriptions
@@ -108,6 +107,17 @@ class HeadMovementNode(Node):
                               self.main_loop_callback)
 
     # end of __init__
+
+    def close(self):
+        print("destroy")
+        try:
+            self.head_action_client.destroy()
+            self.eye_action_client.destroy()
+            self.destroy_node()
+        except Exception as e:
+            print(e)
+            pass
+        print("done")
 
     def face_location_update_callback(self, msg):
         """
@@ -237,11 +247,11 @@ class HeadMovementNode(Node):
 def main():
     rclpy.init()
 
-    action_client = HeadMovementNode()
-    rclpy.spin(action_client)
+    node = HeadMovementNode()
+    rclpy.spin(node)
 
     # Shutdown
-    action_client.destroy_node()
+    node.close()
     rclpy.shutdown()
 
 if __name__ == "__main__":
